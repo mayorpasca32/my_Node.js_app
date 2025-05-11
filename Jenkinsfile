@@ -44,7 +44,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh "docker run -d -p 80:3000 ${DOCKER_HUB_REPO}:${DOCKER_TAG}"
+                    sh "docker run -d -p 3001:3000 ${DOCKER_HUB_REPO}:${DOCKER_TAG}"
                 }
             }
         }
