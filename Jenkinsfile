@@ -7,6 +7,13 @@ pipeline {
         DOCKER_HUB_REPO = "mayorpasca32/${DOCKER_IMAGE}"
     }
 
+    stage('Cleanup') {
+  steps {
+    cleanWs()
+  }
+}
+
+
     stages {
         stage("Checkout") {
             steps {
