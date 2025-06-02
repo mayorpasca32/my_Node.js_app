@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage("Checkout") {
             steps {
                 git branch: 'main', url: 'https://github.com/mayorpasca32/my_Node.js_app.git'
             }
