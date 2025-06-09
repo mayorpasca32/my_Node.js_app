@@ -7,14 +7,13 @@ pipeline {
         DOCKER_HUB_REPO = "mayorpasca32/${DOCKER_IMAGE}"
     }
 
-    stage('Cleanup') {
-  steps {
-    cleanWs()
-  }
-}
-
-
     stages {
+        stage('Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage("Checkout") {
             steps {
                 git branch: 'main', url: 'https://github.com/mayorpasca32/my_Node.js_app.git'
