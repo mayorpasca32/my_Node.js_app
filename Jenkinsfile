@@ -66,12 +66,15 @@ pipeline {
             steps {
                 script {
                     echo "🌐 Starting ngrok tunnel..."
+                    // Start ngrok on port 3001 in the background
                     sh "nohup ngrok http 3001 > ngrok.log 2>&1 &"
+
                     sleep(time: 5, unit: 'SECONDS')
 
-                    echo "🌐 Fetching public URL from ngrok..."
+                    echo "🌐 Fetching public URL from ngrok API..."
+                    // Use jq to parse the ngrok public URL cleanly
                     def ngrokUrl = sh(
-                        script: "curl --silent http://127.0.0.1:4040/api/tunnels | grep -o 'https://[0-9a-z]*\\.ngrok\\.io' | head -n1",
+                        script: "curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'",
                         returnStdout: true
                     ).trim()
 
