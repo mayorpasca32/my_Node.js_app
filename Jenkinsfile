@@ -61,6 +61,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Expose via Ngrok') {
+            steps {
+                script {
+                    echo "Starting ngrok tunnel..."
+                    sh "nohup ngrok http 3001 > ngrok.log 2>&1 &"
+                    sleep(time: 5, unit: 'SECONDS')
+                    echo "Ngrok started. Check ngrok.log for public URL."
+                }
+            }
+        }
     }
 
     post {
