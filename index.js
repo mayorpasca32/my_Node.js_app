@@ -1,42 +1,44 @@
-// index.js
 const express = require('express');
-const morgan = require('morgan'); // HTTP request logger
-const helmet = require('helmet'); // security headers
-const app = express();
+const morgan = require('morgan');
+const helmet = require('helmet');
+const cors = require('cors');
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middlewares
 app.use(helmet());
-app.use(morgan('combined'));
+app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(morgan('combined'));
 
-// Routes
+// Root Route
 app.get('/', (req, res) => {
-  res.send('Hello from the enhanced Node.js CI/CD Pipeline App!');
-});
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', uptime: process.uptime() });
-});
-
-app.post('/echo', (req, res) => {
-  res.json({ you_sent: req.body });
-});
-
-// Graceful shutdown
-const server = app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-
-function shutdown() {
-  console.log('Shutting down...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
+  res.status(200).json({
+    message: '🚀 Welcome to MayorPasca\'s Node.js CI/CD Pipeline App!',
+    status: 'success',
+    timestamp: new Date(),
   });
-}
+});
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+// Health Check Route
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    uptime: process.uptime(),
+    timestamp: new Date(),
+  });
+});
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    message: '🔍 Route not found',
+    status: 'error',
+  });
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`✅ Server is running at http://localhost:${PORT}`);
+});
