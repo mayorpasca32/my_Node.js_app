@@ -8,13 +8,13 @@ pipeline {
     }
 
     stages {
-        stage('Cleanup') {
+        stage('Cleanup Workspace') {
             steps {
                 cleanWs()
             }
         }
 
-        stage("Checkout") {
+        stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/mayorpasca32/my_Node.js_app.git'
             }
@@ -23,6 +23,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    echo "Building Docker image..."
                     sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
@@ -31,6 +32,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
+                    echo "Running tests inside container..."
                     sh "docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} npm test"
                 }
             }
@@ -40,6 +42,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry([credentialsId: '794cbfdd-e4cf-4e22-aba3-dfdf10050e98', url: '']) {
+                        echo "Tagging and pushing Docker image to Docker Hub..."
                         sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_HUB_REPO}:${DOCKER_TAG}"
                         sh "docker push ${DOCKER_HUB_REPO}:${DOCKER_TAG}"
                     }
@@ -47,10 +50,14 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Container Locally') {
             steps {
                 script {
-                    sh "docker run -d -p 3001:3000 ${DOCKER_HUB_REPO}:${DOCKER_TAG}"
+                    echo "Stopping any existing container..."
+                    sh "docker rm -f myapp-container || true"
+
+                    echo "Starting new container on port 3001..."
+                    sh "docker run -d --name myapp-container -p 3001:3000 ${DOCKER_HUB_REPO}:${DOCKER_TAG}"
                 }
             }
         }
@@ -58,14 +65,14 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up Docker images...'
+            echo 'Cleaning up dangling Docker images (if any)...'
             sh "docker image rm -f ${DOCKER_IMAGE}:${DOCKER_TAG} || true"
         }
         success {
-            echo '✅ Deployment successful!'
+            echo '✅ Deployment completed successfully!'
         }
         failure {
-            echo '❌ Build or deployment failed.'
+            echo '❌ Build, test, or deployment failed.'
         }
     }
 }
