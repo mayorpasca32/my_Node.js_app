@@ -1,13 +1,20 @@
-FROM node:14
+# Use official Node.js LTS Alpine image for smaller, secure base
+FROM node:18-alpine
 
-WORKDIR /app
+# Set working directory inside the container
+WORKDIR /usr/src/app
 
+# Copy package.json and package-lock.json (if available)
 COPY package*.json ./
-RUN npm install
 
+# Install only production dependencies
+RUN npm install --production
+
+# Copy the rest of the application code
 COPY . .
 
+# Expose the application port
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:3000/health || exit 1
 
+# Command to run the app
 CMD ["npm", "start"]
